@@ -303,7 +303,10 @@ jobs:
             adb shell input swipe 300 1000 300 500
             
             # Run the mobile tests with debug info
-            cd mobile-tests && npm test || {
+            cd mobile-tests
+            if npm test; then
+              echo "Tests passed successfully!"
+            else
               echo "Tests failed, capturing debug information..."
               mkdir -p ../reports/mobile-tests/debug
               adb shell screencap -p /sdcard/screenshot.png
@@ -312,7 +315,7 @@ jobs:
               adb pull /sdcard/ui-dump.xml ../reports/mobile-tests/debug/ui-hierarchy.xml 2>/dev/null || echo "Could not capture UI dump"
               echo "Debug information saved to reports/mobile-tests/debug/"
               exit 1
-            }
+            fi
 
       - name: Upload Mobile Test Report
         uses: actions/upload-artifact@v4
