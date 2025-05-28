@@ -59,7 +59,7 @@ exports.config = {
         'appium:autoGrantPermissions': true,
         'appium:noReset': false,
         'appium:fullReset': false,
-        'appium:newCommandTimeout': 600
+        'appium:newCommandTimeout': 2000
     }],
 
     //
