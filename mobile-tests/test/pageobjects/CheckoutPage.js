@@ -32,6 +32,21 @@ class CheckoutPage {
         return $('//*[@resource-id="com.saucelabs.mydemoapp.android:id/paymentBtn"]');
     }
 
+    async scrollDown() {
+        // Usar swipe para fazer scroll - mais compatível
+        const { width, height } = await driver.getWindowSize();
+        const startX = width / 2;
+        const startY = height * 0.8;
+        const endY = height * 0.2;
+        
+        await driver.touchAction([
+            { action: 'press', x: startX, y: startY },
+            { action: 'wait', ms: 500 },
+            { action: 'moveTo', x: startX, y: endY },
+            { action: 'release' }
+        ]);
+    }
+
     async fillAddress(addressData) {
         console.log('Preenchendo dados de endereço...');
         
@@ -41,7 +56,7 @@ class CheckoutPage {
         console.log('✓ Nome completo preenchido');
         
         // Scroll para garantir que próximos campos estejam visíveis
-        await driver.execute('mobile: scroll', { direction: 'down' });
+        await this.scrollDown();
         await driver.pause(1000);
         
         await this.address1Input.waitForDisplayed({ timeout: 10000 });
@@ -53,7 +68,7 @@ class CheckoutPage {
         console.log('✓ Endereço 2 preenchido');
         
         // Scroll novamente para campos inferiores
-        await driver.execute('mobile: scroll', { direction: 'down' });
+        await this.scrollDown();
         await driver.pause(1000);
         
         await this.cityInput.waitForDisplayed({ timeout: 10000 });
@@ -65,7 +80,7 @@ class CheckoutPage {
         console.log('✓ Estado preenchido');
         
         // Scroll final para garantir que ZIP e Country estejam visíveis
-        await driver.execute('mobile: scroll', { direction: 'down' });
+        await this.scrollDown();
         await driver.pause(1000);
         
         // Tentar múltiplas estratégias para o campo ZIP
@@ -75,7 +90,7 @@ class CheckoutPage {
             console.log('✓ ZIP preenchido');
         } catch (error) {
             console.log('⚠ Tentando scroll adicional para ZIP...');
-            await driver.execute('mobile: scroll', { direction: 'down' });
+            await this.scrollDown();
             await driver.pause(2000);
             
             // Tentar novamente
@@ -95,7 +110,7 @@ class CheckoutPage {
         console.log('Prosseguindo para pagamento...');
         
         // Scroll para garantir que o botão esteja visível
-        await driver.execute('mobile: scroll', { direction: 'down' });
+        await this.scrollDown();
         await driver.pause(1000);
         
         try {
@@ -104,7 +119,7 @@ class CheckoutPage {
             console.log('✓ Botão de pagamento clicado');
         } catch (error) {
             console.log('⚠ Tentando scroll adicional para botão de pagamento...');
-            await driver.execute('mobile: scroll', { direction: 'down' });
+            await this.scrollDown();
             await driver.pause(2000);
             
             await this.paymentButton.waitForDisplayed({ timeout: 10000 });
