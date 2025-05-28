@@ -87,6 +87,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-k6-node-
 
+      - name: Install K6
+        run: |
+          curl -s https://dl.k6.io/key.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/k6-archive-keyring.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Install K6 Test Dependencies
+        run: cd k6-tests && npm ci
+
       - name: Create reports directory
         run: mkdir -p reports/k6
 

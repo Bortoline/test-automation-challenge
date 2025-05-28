@@ -82,7 +82,14 @@ public
 # Arquivo de porta do TernJS
 .tern-port
 
-
+# Relatórios e resultados de testes
+reports/
+test-results/
+allure-results/
+allure-report/
+mochawesome-report/
+cucumber-report/
+cucumber-reports/
 
 # Relatórios específicos do Playwright
 playwright-report/
