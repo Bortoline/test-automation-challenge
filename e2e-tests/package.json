@@ -1,0 +1,16 @@
+{
+  "name": "e2e-tests",
+  "version": "1.0.0",
+  "description": "Testes E2E com Playwright e Cucumber",
+  "main": "index.js",
+  "scripts": {
+    "test": "cucumber-js --require cucumber.conf.js --require step_definitions/**/*.js features/**/*.feature --format html:reports/cucumber-report.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.0.1",
+    "@playwright/test": "^1.40.0"
+  }
+}

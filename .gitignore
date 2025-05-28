@@ -96,7 +96,6 @@ playwright-report/
 test-results/
 
 # Relatórios do K6
-*.json
 *.html
 summary.json
 summary.html
