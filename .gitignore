@@ -1,0 +1,173 @@
+# Dependências do Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Arquivos de lock opcionais (descomente se quiser ignorar)
+# package-lock.json
+# yarn.lock
+
+# Logs
+logs
+*.log
+
+# Diretório de cobertura gerado por ferramentas como istanbul
+coverage/
+*.lcov
+
+# Diretório de instrumentação nyc
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Arquivos de configuração TypeScript
+*.tsbuildinfo
+
+# Diretório de cache opcional do npm
+.npm
+
+# Diretório de cache opcional do eslint
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Diretório de cache opcional do REPL
+.node_repl_history
+
+# Saída do 'npm pack'
+*.tgz
+
+# Arquivo de integridade do Yarn
+.yarn-integrity
+
+# Arquivo de ambiente dotenv
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Cache do parcel-bundler
+.cache
+.parcel-cache
+
+# Saída do Next.js
+.next
+
+# Saída do Nuxt.js
+.nuxt
+dist
+
+# Arquivos do Gatsby
+.cache/
+public
+
+# Diretório de dependências do Storybook
+.out
+.storybook-out
+
+# Arquivos temporários do FuseBox
+.fusebox/
+
+# Arquivos locais do DynamoDB
+.dynamodb/
+
+# Arquivo de porta do TernJS
+.tern-port
+
+# Relatórios e resultados de testes
+reports/
+test-results/
+allure-results/
+allure-report/
+mochawesome-report/
+cucumber-report/
+cucumber-reports/
+
+# Relatórios específicos do Playwright
+playwright-report/
+test-results/
+
+# Relatórios do K6
+*.json
+*.html
+summary.json
+summary.html
+
+# Relatórios do WebDriverIO/Appium
+wdio-logs/
+errorShots/
+screenshots/
+
+# Arquivos de vídeo de testes
+videos/
+*.mp4
+*.webm
+
+# Screenshots de falhas
+test-screenshots/
+failure-screenshots/
+
+# Arquivos temporários do sistema operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Arquivos do Windows
+*.tmp
+*.temp
+~$*
+
+# Arquivos do Linux
+*~
+
+# Arquivos do IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Arquivos específicos do Appium
+appium.log
+appium-*.log
+
+# Arquivos de configuração local
+local.conf.js
+local.config.js
+
+# Certificados e chaves
+*.pem
+*.key
+*.crt
+*.p12
+
+# Arquivos de backup
+*.bak
+*.backup
+
+# Arquivos temporários de testes
+temp/
+tmp/
+
+# Arquivos de dados de teste sensíveis
+test-data/sensitive/
+credentials/
+
+# Cache do Android (para testes mobile)
+.gradle/
+local.properties
+
+# Arquivos específicos do projeto
+todo.md.backup 

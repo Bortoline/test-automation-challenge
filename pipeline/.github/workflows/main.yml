@@ -1,0 +1,153 @@
+name: CI/CD - Testes Automatizados
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  install-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            api-tests/package-lock.json
+            e2e-tests/package-lock.json
+            mobile-tests/package-lock.json
+
+      - name: Install K6
+        run: |
+          curl -s https://dl.k6.io/key.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/k6-archive-keyring.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Install API Test Dependencies
+        run: cd api-tests && npm install
+
+      - name: Install E2E Test Dependencies
+        run: cd e2e-tests && npm install
+
+      - name: Install Mobile Test Dependencies
+        run: cd mobile-tests && npm install
+
+  performance-tests:
+    needs: install-deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install K6 (redundant, but ensures availability)
+        run: |
+          curl -s https://dl.k6.io/key.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/k6-archive-keyring.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Run K6 Load Test (Short Version)
+        run: cd k6-tests && k6 run --out json=../reports/k6/results.json load-test-short.js
+
+      - name: Upload K6 Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: k6-report
+          path: reports/k6/
+
+  api-tests:
+    needs: install-deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: api-tests/package-lock.json
+
+      - name: Install API Test Dependencies
+        run: cd api-tests && npm install
+
+      - name: Run Playwright API Tests
+        run: cd api-tests && npx playwright test
+
+      - name: Upload API Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-api-report
+          # Ensure this path exists or adjust Playwright config
+          path: api-tests/playwright-report/ # Default Playwright HTML report path
+          if-no-files-found: warn # Don't fail if report isn't generated
+
+  e2e-tests:
+    needs: install-deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: e2e-tests/package-lock.json
+
+      - name: Install E2E Test Dependencies
+        run: cd e2e-tests && npm install
+        
+      - name: Install Playwright Browsers for E2E
+        run: cd e2e-tests && npx playwright install --with-deps
+
+      - name: Run Playwright Cucumber E2E Tests (Sauce Demo)
+        # Updated command to run Sauce Demo tests
+        run: cd e2e-tests && npm test 
+
+      - name: Upload E2E Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: cucumber-e2e-report
+          # Adjust path based on actual Cucumber JSON/HTML report output
+          path: e2e-tests/reports/cucumber/ 
+          if-no-files-found: warn # Don't fail if report isn't generated
+
+  mobile-tests:
+    needs: install-deps
+    runs-on: ubuntu-latest 
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mobile-tests/package-lock.json
+
+      - name: Install Mobile Test Dependencies
+        run: cd mobile-tests && npm install
+
+      - name: Run Appium WebDriverIO Mobile Tests (Placeholder - My Demo App)
+        run: |
+          echo "*********************************************************************************"
+          echo "* Mobile tests (My Demo App) cannot be executed in this environment.            *"
+          echo "* Requires Android SDK, Appium setup, and a connected emulator/device.        *"
+          echo "* This step is a placeholder to demonstrate pipeline structure.                 *"
+          echo "*********************************************************************************"
+          # In a real environment with SDK and emulator/device:
+          # cd mobile-tests && npm test
+
+      - name: Upload Mobile Test Report (Placeholder)
+        uses: actions/upload-artifact@v3
+        with:
+          name: webdriverio-mobile-report
+          path: mobile-tests/reports/allure-results/ 
+          if-no-files-found: warn 
+
