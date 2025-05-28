@@ -70,7 +70,7 @@ O projeto está organizado da seguinte forma:
 
 1.  **Clone o repositório:**
     ```bash
-    git clone <url-do-repositorio>
+    git clone git@github.com:Bortoline/test-automation-challenge.git
     cd test-automation-challenge
     ```
 2.  **Instale o K6:** Siga as instruções em [https://grafana.com/docs/k6/latest/set-up/install-k6/](https://grafana.com/docs/k6/latest/set-up/install-k6/)
