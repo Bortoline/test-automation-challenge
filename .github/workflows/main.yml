@@ -10,15 +10,15 @@ jobs:
   install-deps:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Cache node modules for API tests
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: api-tests/node_modules
           key: ${{ runner.os }}-api-node-${{ hashFiles('api-tests/package-lock.json') }}
@@ -26,7 +26,7 @@ jobs:
             ${{ runner.os }}-api-node-
 
       - name: Cache node modules for E2E tests
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: e2e-tests/node_modules
           key: ${{ runner.os }}-e2e-node-${{ hashFiles('e2e-tests/package-lock.json') }}
@@ -34,7 +34,7 @@ jobs:
             ${{ runner.os }}-e2e-node-
 
       - name: Cache node modules for Mobile tests
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: mobile-tests/node_modules
           key: ${{ runner.os }}-mobile-node-${{ hashFiles('mobile-tests/package-lock.json') }}
@@ -61,7 +61,7 @@ jobs:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Install K6 (redundant, but ensures availability)
         run: |
@@ -74,7 +74,7 @@ jobs:
         run: cd k6-tests && k6 run --out json=../reports/k6/results.json load-test-short.js
 
       - name: Upload K6 Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: k6-report
           path: reports/k6/
@@ -83,15 +83,15 @@ jobs:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Cache node modules for API tests
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: api-tests/node_modules
           key: ${{ runner.os }}-api-node-${{ hashFiles('api-tests/package-lock.json') }}
@@ -105,7 +105,7 @@ jobs:
         run: cd api-tests && npx playwright test
 
       - name: Upload API Test Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-api-report
           # Ensure this path exists or adjust Playwright config
@@ -116,15 +116,15 @@ jobs:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Cache node modules for E2E tests
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: e2e-tests/node_modules
           key: ${{ runner.os }}-e2e-node-${{ hashFiles('e2e-tests/package-lock.json') }}
@@ -142,7 +142,7 @@ jobs:
         run: cd e2e-tests && npm test 
 
       - name: Upload E2E Test Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cucumber-e2e-report
           # Adjust path based on actual Cucumber JSON/HTML report output
@@ -153,15 +153,15 @@ jobs:
     needs: install-deps
     runs-on: ubuntu-latest 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Cache node modules for Mobile tests
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: mobile-tests/node_modules
           key: ${{ runner.os }}-mobile-node-${{ hashFiles('mobile-tests/package-lock.json') }}
@@ -182,9 +182,9 @@ jobs:
           # cd mobile-tests && npm test
 
       - name: Upload Mobile Test Report (Placeholder)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: webdriverio-mobile-report
           path: mobile-tests/reports/allure-results/ 
-          if-no-files-found: warn 
+          if-no-files-found: warn
 
