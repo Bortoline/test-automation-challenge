@@ -8,7 +8,7 @@ A configuração atual no `main.yml` usa:
 
 ### Componentes:
 - **Android SDK**: Configurado via `android-actions/setup-android@v3`
-- **Java 11**: Necessário para Android SDK
+- **Java 17**: Necessário para Android SDK (versões recentes requerem JDK 17+)
 - **KVM**: Habilitado para melhor performance do emulador
 - **Android Emulator**: API Level 29, arquitetura x86_64
 - **Appium**: Versão mais recente com driver UiAutomator2
@@ -94,6 +94,19 @@ container:
 - Testes em paralelo
 
 ## Troubleshooting
+
+### Erro "This tool requires JDK 17 or later":
+```bash
+# Erro comum com Android SDK recente
+Error: The process '/usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager' failed with exit code 1
+
+# Solução: Use Java 17+ no workflow
+- name: Setup Java 17
+  uses: actions/setup-java@v4
+  with:
+    distribution: 'adopt'
+    java-version: '17'
+```
 
 ### Emulador não inicia:
 ```bash
