@@ -1,5 +1,4 @@
 class PaymentPage {
-    // Seletores para preenchimento de dados de pagamento
     get nameInput() {
         return $('//*[@resource-id="com.saucelabs.mydemoapp.android:id/nameET"]');
     }
@@ -21,7 +20,6 @@ class PaymentPage {
     }
 
     async scrollDown() {
-        // Usar apenas performActions - mais confiável
         const { width, height } = await driver.getWindowSize();
         await driver.performActions([{
             type: 'pointer',
@@ -44,40 +42,45 @@ class PaymentPage {
         // Nome do cartão
         await this.nameInput.waitForDisplayed({ timeout: 15000 });
         await this.nameInput.setValue(paymentData.name);
-        console.log('✓ Nome do cartão preenchido');
+        console.log('Nome do cartão preenchido');
         
         // Número do cartão
         await this.cardNumberInput.waitForDisplayed({ timeout: 10000 });
         await this.cardNumberInput.setValue(paymentData.cardNumber);
-        console.log('✓ Número do cartão preenchido');
+        console.log('Número do cartão preenchido');
         
         // Data de expiração
         await this.expirationDateInput.waitForDisplayed({ timeout: 10000 });
         await this.expirationDateInput.setValue(paymentData.expirationDate);
-        console.log('✓ Data de expiração preenchida');
+        console.log('Data de expiração preenchida');
         
         // Tentar código de segurança primeiro sem scroll
         console.log('Tentando encontrar código de segurança...');
         try {
             await this.securityCodeInput.waitForDisplayed({ timeout: 5000 });
             await this.securityCodeInput.setValue(paymentData.securityCode);
-            console.log('✓ Código de segurança preenchido (sem scroll)');
+            console.log('Código de segurança preenchido (sem scroll)');
         } catch (error) {
-            console.log('⚠ Campo não visível, fazendo scroll...');
+            console.log('Campo não visível, fazendo scroll...', error.message);
             
             // Scroll para garantir que o campo de código de segurança esteja visível
             try {
                 await this.scrollDown();
                 await driver.pause(500);
-                console.log('✓ Scroll realizado');
+                console.log('Scroll realizado');
             } catch (scrollError) {
-                console.log('⚠ Erro no scroll, tentando continuar...');
+                console.log('Erro no scroll, tentando continuar...', scrollError.message);
             }
             
-            // Tentar novamente após scroll
-            await this.securityCodeInput.waitForDisplayed({ timeout: 15000 });
-            await this.securityCodeInput.setValue(paymentData.securityCode);
-            console.log('✓ Código de segurança preenchido (após scroll)');
+            try {
+                // Tentar novamente após scroll
+                await this.securityCodeInput.waitForDisplayed({ timeout: 15000 });
+                await this.securityCodeInput.setValue(paymentData.securityCode);
+                console.log('Código de segurança preenchido (após scroll)');
+            } catch (retryError) {
+                console.error('Falha ao preencher código de segurança após tentativas:', retryError.message);
+                throw retryError;
+            }
         }
         
         console.log('✅ Todos os dados de pagamento preenchidos');
@@ -90,22 +93,27 @@ class PaymentPage {
         try {
             await this.paymentButton.waitForDisplayed({ timeout: 5000 });
             await this.paymentButton.click();
-            console.log('✓ Pedido finalizado com sucesso (sem scroll)!');
+            console.log('Pedido finalizado com sucesso (sem scroll)!');
         } catch (error) {
-            console.log('⚠ Botão não visível, fazendo scroll...');
+            console.log('Botão não visível, fazendo scroll...', error.message);
             
             // Scroll para garantir que o botão esteja visível
             try {
                 await this.scrollDown();
                 await driver.pause(500);
-                console.log('✓ Scroll realizado para botão');
+                console.log('Scroll realizado para botão');
             } catch (scrollError) {
-                console.log('⚠ Erro no scroll, tentando continuar...');
+                console.log('Erro no scroll, tentando continuar...', scrollError.message);
             }
             
-            await this.paymentButton.waitForDisplayed({ timeout: 15000 });
-            await this.paymentButton.click();
-            console.log('✓ Pedido finalizado (após scroll)!');
+            try {
+                await this.paymentButton.waitForDisplayed({ timeout: 15000 });
+                await this.paymentButton.click();
+                console.log('Pedido finalizado (após scroll)!');
+            } catch (retryError) {
+                console.error('Falha ao finalizar pedido após tentativas:', retryError.message);
+                throw retryError;
+            }
         }
     }
 }

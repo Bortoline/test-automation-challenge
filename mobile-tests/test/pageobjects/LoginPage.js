@@ -1,6 +1,5 @@
-// mobile-tests/pages/LoginPage.js
+
 class LoginPage {
-    // Seletores baseados no mapeamento fornecido
     get usernameInput() {
         return $('//*[@resource-id="com.saucelabs.mydemoapp.android:id/nameET"]'); 
     }
@@ -29,7 +28,6 @@ class LoginPage {
                 await driver.hideKeyboard();
             }
         } catch (error) {
-            // Ignorar erro se método não estiver disponível
             console.log('Método hideKeyboard não disponível:', error.message);
         }
         

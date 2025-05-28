@@ -40,15 +40,14 @@ export default function () {
   
   successRate.add(success);
   
-  // Pausa entre requisições para simular comportamento do usuário
   sleep(1);
 }
 
 export function handleSummary(data) {
   return {
-    "stdout": textSummary(data, { indent: " ", enableColors: true }), // Console colorido
-    "../reports/k6/summary-full.json": JSON.stringify(data, null, 2), // JSON detalhado
-    "../reports/k6/summary-full.txt": textSummary(data, { indent: " ", enableColors: false }), // Texto simples
-    "../reports/k6/report-full.html": htmlReport(data), // HTML visual
+    "stdout": textSummary(data, { indent: " ", enableColors: true }),
+    "../reports/k6/summary-full.json": JSON.stringify(data, null, 2),
+    "../reports/k6/summary-full.txt": textSummary(data, { indent: " ", enableColors: false }),
+    "../reports/k6/report-full.html": htmlReport(data),
   };
 }

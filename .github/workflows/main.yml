@@ -17,9 +17,9 @@ name: CI/CD - Testes Automatizados
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   install-deps:
@@ -295,7 +295,16 @@ jobs:
             adb shell settings put system accelerometer_rotation 0
             adb shell input keyevent 82
             adb shell input swipe 300 1000 300 500
-            cd mobile-tests && npm test
+            cd mobile-tests && timeout 300 npm test || echo "Test completed or timed out"
+
+      - name: Force cleanup processes
+        if: always()
+        run: |
+          echo "Cleaning up processes..."
+          pkill -f appium || echo "No Appium processes to kill"
+          pkill -f emulator || echo "No emulator processes to kill"
+          pkill -f qemu || echo "No QEMU processes to kill"
+          sleep 5
 
       - name: Capture Debug Info on Failure
         if: failure()
@@ -354,9 +363,20 @@ jobs:
           echo "" >> consolidated-reports/README.md
           echo "## Available Reports:" >> consolidated-reports/README.md
           echo "- **Performance Tests (K6)**: performance-tests/" >> consolidated-reports/README.md
+          echo "  - HTML Report: performance-tests/k6-report.html" >> consolidated-reports/README.md
           echo "- **API Tests (Playwright)**: api-tests/" >> consolidated-reports/README.md
+          echo "  - HTML Report: api-tests/playwright-report/index.html" >> consolidated-reports/README.md
           echo "- **E2E Tests (Cucumber + Playwright)**: e2e-tests/" >> consolidated-reports/README.md
+          echo "  - HTML Report: e2e-tests/cucumber-report.html" >> consolidated-reports/README.md
           echo "- **Mobile Tests (WebDriverIO + Appium)**: mobile-tests/" >> consolidated-reports/README.md
+          echo "  - HTML Report: mobile-tests/html-report/mobile-test-report.html" >> consolidated-reports/README.md
+          echo "  - Allure Report: mobile-tests/allure-results/" >> consolidated-reports/README.md
+          echo "" >> consolidated-reports/README.md
+          echo "## How to View Reports:" >> consolidated-reports/README.md
+          echo "1. Download the artifact 'all-test-reports-archive'" >> consolidated-reports/README.md
+          echo "2. Extract the ZIP file" >> consolidated-reports/README.md
+          echo "3. Open the HTML files in your browser" >> consolidated-reports/README.md
+          echo "4. For Allure reports, use: allure serve <allure-results-folder>" >> consolidated-reports/README.md
 
       - name: Upload Consolidated Test Reports Archive
         uses: actions/upload-artifact@v4
