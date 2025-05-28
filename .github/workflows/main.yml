@@ -1,3 +1,18 @@
+# CI/CD Pipeline para Testes Automatizados
+# 
+# Este pipeline executa diferentes tipos de testes:
+# - Testes de Performance (K6)
+# - Testes de API (Playwright)
+# - Testes E2E Web (Cucumber + Playwright)
+# - Testes Mobile (WebDriverIO + Appium com emulador Android)
+#
+# Para testes mobile, este pipeline configura:
+# - Android SDK e emulador
+# - Appium server
+# - Ambiente de virtualização KVM para melhor performance
+# 
+# Alternativa: Use docker-android container (veja job comentado mobile-tests-docker)
+
 name: CI/CD - Testes Automatizados
 
 on:
@@ -186,7 +201,12 @@ jobs:
 
   mobile-tests:
     needs: install-deps
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [29]
+        target: [default]
+        arch: [x86_64]
     steps:
       - uses: actions/checkout@v4
       
@@ -203,27 +223,82 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mobile-node-
 
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache AVD
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}-${{ matrix.arch }}-${{ matrix.target }}
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
       - name: Create reports directory
         run: mkdir -p reports/mobile-tests
 
       - name: Install Mobile Test Dependencies
         run: cd mobile-tests && npm ci
 
-      - name: Run Appium WebDriverIO Mobile Tests (Placeholder - My Demo App)
-        run: |
-          echo "*********************************************************************************"
-          echo "* Mobile tests (My Demo App) cannot be executed in this environment.            *"
-          echo "* Requires Android SDK, Appium setup, and a connected emulator/device.        *"
-          echo "* This step is a placeholder to demonstrate pipeline structure.                 *"
-          echo "*********************************************************************************"
-          # In a real environment with SDK and emulator/device:
-          # cd mobile-tests && npm test
-          
-          # Create a placeholder report
-          echo '{"status": "skipped", "reason": "Mobile tests require Android SDK and emulator"}' > reports/mobile-tests/placeholder-report.json
+      - name: Install Appium
+        run: npm install -g appium@next
 
-      - name: Upload Mobile Test Report (Placeholder)
+      - name: Install Appium UiAutomator2 Driver
+        run: appium driver install uiautomator2
+
+      - name: Start Appium Server
+        run: |
+          appium server --port 4723 --log-level info &
+          sleep 5
+        
+      - name: Run Mobile Tests with Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            echo "Waiting for emulator to be ready..."
+            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+            echo "Emulator is ready!"
+            
+            # Verify Appium server is running
+            curl -f http://localhost:4723/status || (echo "Appium server not ready" && exit 1)
+            
+            # Run the mobile tests
+            cd mobile-tests && npm test
+
+      - name: Upload Mobile Test Report
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: mobile-test-reports
           path: reports/mobile-tests/
