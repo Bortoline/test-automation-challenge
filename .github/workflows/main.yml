@@ -290,11 +290,29 @@ jobs:
             adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
             echo "Emulator is ready!"
             
+            # Wait extra time for emulator to fully stabilize
+            echo "Waiting additional time for emulator stabilization..."
+            sleep 20
+            
             # Verify Appium server is running
             curl -f http://localhost:4723/status || (echo "Appium server not ready" && exit 1)
             
-            # Run the mobile tests
-            cd mobile-tests && npm test
+            # Set emulator to portrait mode and unlock screen
+            adb shell settings put system accelerometer_rotation 0
+            adb shell input keyevent 82
+            adb shell input swipe 300 1000 300 500
+            
+            # Run the mobile tests with debug info
+            cd mobile-tests && npm test || {
+              echo "Tests failed, capturing debug information..."
+              mkdir -p ../reports/mobile-tests/debug
+              adb shell screencap -p /sdcard/screenshot.png
+              adb pull /sdcard/screenshot.png ../reports/mobile-tests/debug/emulator-screenshot.png 2>/dev/null || echo "Could not capture screenshot"
+              adb shell uiautomator dump /sdcard/ui-dump.xml
+              adb pull /sdcard/ui-dump.xml ../reports/mobile-tests/debug/ui-hierarchy.xml 2>/dev/null || echo "Could not capture UI dump"
+              echo "Debug information saved to reports/mobile-tests/debug/"
+              exit 1
+            }
 
       - name: Upload Mobile Test Report
         uses: actions/upload-artifact@v4

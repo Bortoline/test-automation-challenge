@@ -148,6 +148,53 @@ capabilities: [{
 }]
 ```
 
+### Erro "no such element" no emulador (funciona no dispositivo físico):
+```bash
+# Problema comum: elementos não encontrados no emulador GitHub Actions
+NoSuchElementError: An element could not be located on the page using the given search parameters.
+
+# Possíveis causas:
+# 1. Diferenças de timing entre emulador e dispositivo físico
+# 2. Resolução/densidade de tela diferentes
+# 3. Performance mais lenta do emulador
+# 4. Elementos fora da viewport
+
+# Soluções implementadas:
+# - Múltiplos seletores alternativos
+# - Timeouts aumentados (15-20 segundos)
+# - Pausa adicional após ações
+# - Debug automático com screenshot e UI dump
+# - Scroll alternativo para garantir visibilidade
+```
+
+### Melhorias para Emulador GitHub Actions:
+```javascript
+// Page Object com seletores robustos
+get addToCartButton() {
+    return $('//*[@resource-id="com.saucelabs.mydemoapp.android:id/cartBt"]');
+}
+
+get addToCartButtonAlt1() {
+    return $('//android.widget.Button[contains(@text, "Add")]');
+}
+
+// Método com fallback
+async addToCart() {
+    const selectors = [this.addToCartButton, this.addToCartButtonAlt1];
+    
+    for (let selector of selectors) {
+        try {
+            await selector.waitForDisplayed({ timeout: 8000 });
+            await selector.click();
+            return; // Sucesso
+        } catch (error) {
+            continue; // Tentar próximo seletor
+        }
+    }
+    throw new Error('Elemento não encontrado com nenhum seletor');
+}
+```
+
 ## Recursos Adicionais
 
 - [Android Emulator Runner](https://github.com/ReactiveCircus/android-emulator-runner)
