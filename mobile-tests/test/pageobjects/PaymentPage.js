@@ -29,6 +29,8 @@ class PaymentPage {
         await this.cardNumberInput.setValue(paymentData.cardNumber);
         await this.expirationDateInput.setValue(paymentData.expirationDate);
         await this.securityCodeInput.setValue(paymentData.securityCode);
+
+        await this.paymentButton.click();
     }
 
     async placeOrder() {

@@ -85,6 +85,7 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
             });
             console.log('✓ Dados de pagamento preenchidos');
             
+
             // Finalizar pedido
             await PaymentPage.placeOrder();
             console.log('✓ Pedido finalizado');
