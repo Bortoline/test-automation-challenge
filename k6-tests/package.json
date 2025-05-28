@@ -1,0 +1,27 @@
+{
+  "name": "test-automation-challenge",
+  "version": "1.0.0",
+  "description": "Projeto de automação de testes com K6, Playwright, Appium e API tests",
+  "scripts": {
+    "k6:install": "npm install -g k6",
+    "k6:test-short": "k6 run load-test-short.js",
+    "k6:test": "k6 run load-test.js",
+    "k6:clean": "rm -rf ../reports/k6/*.json ../reports/k6/*.html ../reports/k6/*.txt",
+    "k6:help": "echo 'Scripts K6 disponíveis:\n  npm run k6:test - Executa teste de carga completo (com HTML)\n  npm run k6:test-short - Executa teste de carga rápido (com HTML)\n  npm run k6:test-json-only - Teste completo apenas JSON\n  npm run k6:test-short-json-only - Teste rápido apenas JSON\n  npm run k6:clean - Limpa relatórios anteriores\n  npm run k6:install - Instala K6 globalmente'",
+    "test:all": "echo 'Executando todos os testes de performance...' && npm run k6:test-short",
+    "clean:all": "npm run k6:clean"
+  },
+  "keywords": [
+    "k6",
+    "performance-testing",
+    "load-testing",
+    "automation",
+    "testing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+} 

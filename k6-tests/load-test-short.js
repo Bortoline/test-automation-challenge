@@ -54,8 +54,8 @@ export default function () {
 export function handleSummary(data) {
   return {
     "stdout": textSummary(data, { indent: " ", enableColors: true }), // Console colorido
-    "../reports/k6/summary.json": JSON.stringify(data, null, 2), // JSON detalhado
-    "../reports/k6/summary.txt": textSummary(data, { indent: " ", enableColors: false }), // Texto simples
-    "../reports/k6/report.html": htmlReport(data), // HTML visual
+    "../reports/k6/summary-short.json": JSON.stringify(data, null, 2), // JSON detalhado
+    "../reports/k6/summary-short.txt": textSummary(data, { indent: " ", enableColors: false }), // Texto simples
+    "../reports/k6/report-short.html": htmlReport(data), // HTML visual
   };
 }

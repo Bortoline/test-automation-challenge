@@ -4,7 +4,7 @@
   "description": "Testes E2E com Playwright e Cucumber",
   "main": "index.js",
   "scripts": {
-    "test": "cucumber-js --require cucumber.conf.js --require step_definitions/**/*.js features/**/*.feature --format html:reports/cucumber-report.html"
+    "test": "cucumber-js --require cucumber.conf.js --require step_definitions/**/*.js features/**/*.feature --format html:../reports/e2e-tests/cucumber-report.html"
   },
   "keywords": [],
   "author": "",

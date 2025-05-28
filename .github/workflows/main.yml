@@ -41,6 +41,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mobile-node-
 
+      - name: Cache node modules for K6 tests
+        uses: actions/cache@v4
+        with:
+          path: k6-tests/node_modules
+          key: ${{ runner.os }}-k6-node-${{ hashFiles('k6-tests/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-k6-node-
+
       - name: Install K6
         run: |
           curl -s https://dl.k6.io/key.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/k6-archive-keyring.gpg > /dev/null
@@ -57,24 +65,33 @@ jobs:
       - name: Install Mobile Test Dependencies
         run: cd mobile-tests && npm ci
 
+      - name: Install K6 Test Dependencies
+        run: cd k6-tests && npm ci
+
   performance-tests:
     needs: install-deps
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install K6 (redundant, but ensures availability)
-        run: |
-          curl -s https://dl.k6.io/key.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/k6-archive-keyring.gpg > /dev/null
-          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-          sudo apt-get update
-          sudo apt-get install -y k6
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache node modules for K6 tests
+        uses: actions/cache@v4
+        with:
+          path: k6-tests/node_modules
+          key: ${{ runner.os }}-k6-node-${{ hashFiles('k6-tests/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-k6-node-
 
       - name: Create reports directory
         run: mkdir -p reports/k6
 
-      - name: Run K6 Load Test (Short Version)
-        run: cd k6-tests && k6 run load-test-short.js
+      - name: Run K6 Load Test (Short Version with HTML Reports)
+        run: cd k6-tests && npm run k6:test-short
 
       - name: Upload K6 Report
         uses: actions/upload-artifact@v4
