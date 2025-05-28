@@ -33,18 +33,31 @@ class CheckoutPage {
     }
 
     async scrollDown() {
-        // Usar swipe para fazer scroll - mais compatível
-        const { width, height } = await driver.getWindowSize();
-        const startX = width / 2;
-        const startY = height * 0.8;
-        const endY = height * 0.2;
-        
-        await driver.touchAction([
-            { action: 'press', x: startX, y: startY },
-            { action: 'wait', ms: 500 },
-            { action: 'moveTo', x: startX, y: endY },
-            { action: 'release' }
-        ]);
+        // Usar abordagem mais simples e compatível
+        try {
+            // Tentar scroll usando elemento da tela
+            await driver.execute('mobile: scrollGesture', {
+                left: 100, top: 100, width: 200, height: 200,
+                direction: 'down',
+                percent: 0.75
+            });
+        } catch (error) {
+            // Fallback: usar swipe com performActions (mais moderno)
+            const { width, height } = await driver.getWindowSize();
+            await driver.performActions([{
+                type: 'pointer',
+                id: 'finger1',
+                parameters: { pointerType: 'touch' },
+                actions: [
+                    { type: 'pointerMove', duration: 0, x: width / 2, y: height * 0.8 },
+                    { type: 'pointerDown', button: 0 },
+                    { type: 'pause', duration: 100 },
+                    { type: 'pointerMove', duration: 500, x: width / 2, y: height * 0.2 },
+                    { type: 'pointerUp', button: 0 }
+                ]
+            }]);
+            await driver.releaseActions();
+        }
     }
 
     async fillAddress(addressData) {

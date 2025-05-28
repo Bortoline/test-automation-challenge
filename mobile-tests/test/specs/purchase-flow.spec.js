@@ -6,7 +6,7 @@ const PaymentPage = require('../pageobjects/PaymentPage');
 describe('Fluxo Completo de Compra - Corrigido', () => {
     it('Deve realizar uma compra completa do produto Sauce Labs Backpack', async () => {
         // Aguardar o app carregar
-        await driver.pause(3000);
+        await driver.pause(2000);
         
         // 1. Verificar se estamos na tela de produtos
         console.log('=== INICIANDO FLUXO DE COMPRA ===');
@@ -43,14 +43,14 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
             if (await noButton.isDisplayed()) {
                 await noButton.click();
                 console.log('✓ Popup do Android fechado');
-                await driver.pause(2000);
+                await driver.pause(1000);
             }
         } catch (error) {
             console.log('ℹ Popup do Android não encontrado ou já fechado:', error.message);
         }
         
         // 9. Aguardar e verificar qual tela apareceu
-        await driver.pause(3000);
+        await driver.pause(2000);
         const pageSource = await driver.getPageSource();
         
         console.log('=== VERIFICANDO TELA APÓS LOGIN ===');
@@ -76,7 +76,8 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
             console.log('✓ Prosseguiu para pagamento');
             
             // Aguardar tela de pagamento carregar
-            await driver.pause(3000);
+            await driver.pause(2000);
+            console.log('=== INICIANDO PREENCHIMENTO DE PAGAMENTO ===');
             
             // Preencher dados de pagamento
             await PaymentPage.fillPaymentInfo({
@@ -87,9 +88,17 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
             });
             console.log('✓ Dados de pagamento preenchidos');
             
+            // Aguardar um pouco antes de finalizar
+            await driver.pause(1000);
+            console.log('=== FINALIZANDO PEDIDO ===');
+            
             // Finalizar pedido
             await PaymentPage.placeOrder();
             console.log('✓ Pedido finalizado');
+            
+            // Aguardar confirmação
+            await driver.pause(2000);
+            console.log('=== VERIFICANDO CONFIRMAÇÃO ===');
             
         } else {
             console.log('⚠ Tela não identificada após login');
