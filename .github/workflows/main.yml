@@ -70,14 +70,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y k6
 
+      - name: Create reports directory
+        run: mkdir -p reports/k6
+
       - name: Run K6 Load Test (Short Version)
-        run: cd k6-tests && k6 run --out json=../reports/k6/results.json load-test-short.js
+        run: cd k6-tests && k6 run load-test-short.js
 
       - name: Upload K6 Report
         uses: actions/upload-artifact@v4
         with:
           name: k6-report
           path: reports/k6/
+          if-no-files-found: warn
 
   api-tests:
     needs: install-deps

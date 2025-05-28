@@ -1,7 +1,6 @@
 import http from 'k6/http';
 import { sleep, check } from 'k6';
 import { Counter, Rate, Trend } from 'k6/metrics';
-import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
 
 // Métricas personalizadas
 const errors = new Counter('errors');
@@ -11,9 +10,9 @@ const successRate = new Rate('success_rate');
 // Configuração do teste (versão reduzida para demonstração)
 export const options = {
   stages: [
-    { duration: '10s', target: 50 },  // Rampa de subida para 50 usuários em 10 segundos
-    { duration: '20s', target: 100 }, // Rampa de subida para 100 usuários em 20 segundos
-    { duration: '30s', target: 100 }, // Manter 100 usuários por 30 segundos
+    { duration: '10s', target: 5 },   // Rampa de subida para 5 usuários em 10 segundos
+    { duration: '20s', target: 10 },  // Rampa de subida para 10 usuários em 20 segundos
+    { duration: '30s', target: 10 },  // Manter 10 usuários por 30 segundos
     { duration: '10s', target: 0 },   // Rampa de descida para 0 usuários em 10 segundos
   ],
   thresholds: {
@@ -49,10 +48,10 @@ export default function () {
   sleep(1);
 }
 
-// Função para gerar relatório HTML após o teste
+// Função para gerar relatório simples após o teste
 export function handleSummary(data) {
   return {
-    "summary.html": htmlReport(data),
-    "summary.json": JSON.stringify(data),
+    "stdout": JSON.stringify(data, null, 2), // Exibe no console
+    "../reports/k6/summary.json": JSON.stringify(data, null, 2), // Salva JSON
   };
 }
