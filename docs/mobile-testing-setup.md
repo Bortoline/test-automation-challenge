@@ -132,6 +132,22 @@ adb devices
 - Reduza animações
 - Use GPU hardware acceleration
 
+### Erro "Either provide 'app' option to install":
+```bash
+# Erro quando o APK não está configurado
+WebDriverError: Either provide 'app' option to install 'com.saucelabs.mydemoapp.android' 
+or consider setting 'noReset' to 'true' if 'com.saucelabs.mydemoapp.android' is supposed to be preinstalled.
+
+# Solução: Adicione o caminho do APK nas capabilities
+capabilities: [{
+    platformName: 'Android',
+    'appium:automationName': 'UiAutomator2',
+    'appium:app': './apps/MyDemoApp.apk',
+    'appium:appPackage': 'com.saucelabs.mydemoapp.android',
+    'appium:appActivity': 'com.saucelabs.mydemoapp.android.view.activities.SplashActivity'
+}]
+```
+
 ## Recursos Adicionais
 
 - [Android Emulator Runner](https://github.com/ReactiveCircus/android-emulator-runner)

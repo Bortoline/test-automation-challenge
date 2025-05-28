@@ -53,6 +53,7 @@ exports.config = {
         // capabilities for local Appium native app tests on an Android device/emulator
         platformName: 'Android',
         'appium:automationName': 'UiAutomator2',
+        'appium:app': './apps/MyDemoApp.apk',
         'appium:appPackage': 'com.saucelabs.mydemoapp.android',
         'appium:appActivity': 'com.saucelabs.mydemoapp.android.view.activities.SplashActivity',
         'appium:autoGrantPermissions': true,
