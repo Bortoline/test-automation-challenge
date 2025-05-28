@@ -12,7 +12,6 @@ O projeto está organizado da seguinte forma:
 /test-automation-challenge
 ├── api-tests/             # Testes de API com Playwright (API pública)
 │   ├── node_modules/      # (Excluído do ZIP)
-│   ├── playwright-report/ # Relatório HTML Playwright
 │   ├── tests/             # Scripts de teste de API (specs)
 │   ├── package.json
 │   ├── package-lock.json
@@ -21,7 +20,6 @@ O projeto está organizado da seguinte forma:
 │   ├── features/          # Arquivos .feature (login_saucedemo.feature)
 │   ├── node_modules/      # (Excluído do ZIP)
 │   ├── pages/             # Page Objects (LoginPage, InventoryPage)
-│   ├── reports/           # Relatórios (configurar output se necessário)
 │   ├── step_definitions/  # Implementação dos steps (saucedemo_steps.js)
 │   ├── support/           # Arquivos de suporte (hooks, reporter config)
 │   ├── cucumber.conf.js   # Configuração dos hooks do Cucumber
@@ -30,15 +28,12 @@ O projeto está organizado da seguinte forma:
 ├── k6-tests/              # Testes de Carga com K6 (API pública)
 │   ├── load-test.js       # Script K6 completo (500 VUs, 5 min)
 │   ├── load-test-short.js # Script K6 reduzido (demonstração)
-│   ├── summary.html       # Exemplo de relatório HTML (gerado via handleSummary)
-│   └── summary.json       # Exemplo de relatório JSON (gerado via handleSummary)
 ├── mobile-tests/          # Testes Mobile com Appium e WebDriverIO (My Demo App)
 │   ├── apps/              # APK do My Demo App
 │   │   └── MyDemoApp.apk
 │   ├── config/            # Configuração do WebDriverIO (wdio.conf.js)
 │   ├── node_modules/      # (Excluído do ZIP)
 │   ├── pages/             # Page Objects (LoginPage, ProductsPage)
-│   ├── reports/           # Relatórios (Allure configurado)
 │   ├── specs/             # Scripts de teste mobile (login.spec.js)
 │   ├── package.json
 │   └── package-lock.json
@@ -61,8 +56,8 @@ O projeto está organizado da seguinte forma:
 - **Node.js**: v20.18.0
 - **npm**: (Versão correspondente ao Node.js v20)
 - **K6**: Instalado via repositório (versão estável no momento da execução)
-- **Playwright**: v1.40.0 (@playwright/test)
-- **Cucumber**: v10.0.1 (@cucumber/cucumber)
+- **Playwright**: v1.52.0 (@playwright/test)
+- **Cucumber**: v10.9.0 (@cucumber/cucumber)
 - **WebDriverIO**: v8.x.x (Conforme dependências instaladas)
 - **Appium**: v2.x.x (Conforme dependências instaladas via `@wdio/appium-service`)
 

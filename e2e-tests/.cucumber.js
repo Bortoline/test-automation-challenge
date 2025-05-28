@@ -6,8 +6,8 @@ module.exports = {
     ],
     format: [
       'progress-bar',
-      'json:./reports/cucumber-report.json',
-      'html:./reports/cucumber-report.html'
+      'json:../reports/e2e-tests/cucumber-report.json',
+      'html:../reports/e2e-tests/cucumber-report.html'
     ],
     paths: [
       './features/**/*.feature'

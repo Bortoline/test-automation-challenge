@@ -1,6 +1,8 @@
 import http from 'k6/http';
 import { sleep, check } from 'k6';
 import { Counter, Rate, Trend } from 'k6/metrics';
+import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.1/index.js';
+import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
 
 // Métricas personalizadas
 const errors = new Counter('errors');
@@ -48,10 +50,12 @@ export default function () {
   sleep(1);
 }
 
-// Função para gerar relatório simples após o teste
+// Função para gerar relatórios após o teste
 export function handleSummary(data) {
   return {
-    "stdout": JSON.stringify(data, null, 2), // Exibe no console
-    "../reports/k6/summary.json": JSON.stringify(data, null, 2), // Salva JSON
+    "stdout": textSummary(data, { indent: " ", enableColors: true }), // Console colorido
+    "../reports/k6/summary.json": JSON.stringify(data, null, 2), // JSON detalhado
+    "../reports/k6/summary.txt": textSummary(data, { indent: " ", enableColors: false }), // Texto simples
+    "../reports/k6/report.html": htmlReport(data), // HTML visual
   };
 }
