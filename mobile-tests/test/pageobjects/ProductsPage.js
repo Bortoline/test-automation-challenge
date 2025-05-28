@@ -57,7 +57,7 @@ class ProductsPage {
                 percent: 3.0
             });
         } catch (error) {
-            console.log('Tentando scroll alternativo...');
+            console.log(`Tentando scroll alternativo... ${error}`);
             // Fallback para scroll manual
             await driver.touchAction([
                 { action: 'press', x: 200, y: 800 },
@@ -112,7 +112,7 @@ class ProductsPage {
                         const isDisplayed = await allButtons[j].isDisplayed();
                         console.log(`- Botão ${j}: text="${text}", resource-id="${resourceId}", displayed=${isDisplayed}`);
                     } catch (e) {
-                        console.log(`- Botão ${j}: erro ao acessar`);
+                        console.log(`- Botão ${j}: erro ao acessar ${e}`);
                     }
                 }
             } catch (debugError) {
