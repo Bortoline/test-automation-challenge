@@ -10,8 +10,6 @@
 # - Android SDK e emulador
 # - Appium server
 # - Ambiente de virtualização KVM para melhor performance
-# 
-# Alternativa: Use docker-android container (veja job comentado mobile-tests-docker)
 
 name: CI/CD - Testes Automatizados
 
@@ -313,6 +311,30 @@ jobs:
             
             echo "Tests finished, starting cleanup..."
 
+      - name: Generate Allure HTML Report
+        if: always()
+        run: |
+          echo "Generating Allure HTML report..."
+          cd mobile-tests
+          
+          # Verificar se existem resultados do Allure
+          if [ -d "../reports/mobile-tests/allure-results" ] && [ "$(ls -A ../reports/mobile-tests/allure-results)" ]; then
+            echo "Allure results found, generating HTML report..."
+            
+            # Instalar allure-commandline se não estiver instalado
+            npm list allure-commandline || npm install allure-commandline
+            
+            # Gerar relatório HTML em arquivo único
+            npx allure generate ../reports/mobile-tests/allure-results --single-file --clean -o ../reports/mobile-tests/allure-report
+            
+            echo "Allure HTML report generated at: ../reports/mobile-tests/allure-report/"
+            ls -la ../reports/mobile-tests/allure-report/
+          else
+            echo "No Allure results found, skipping HTML report generation"
+            mkdir -p ../reports/mobile-tests/allure-report
+            echo "<h1>No Allure Results Found</h1><p>The mobile tests did not generate any Allure results.</p>" > ../reports/mobile-tests/allure-report/index.html
+          fi
+
       - name: Stop Appium Server
         if: always()
         run: |
@@ -451,12 +473,15 @@ jobs:
           echo "- **Mobile Tests (WebDriverIO + Appium)**: mobile-tests/" >> consolidated-reports/README.md
           echo "  - HTML Report: mobile-tests/html-report/mobile-test-report.html" >> consolidated-reports/README.md
           echo "  - Allure Report: mobile-tests/allure-results/" >> consolidated-reports/README.md
+          echo "  - Allure HTML Report: mobile-tests/allure-report/index.html" >> consolidated-reports/README.md
           echo "" >> consolidated-reports/README.md
           echo "## How to View Reports:" >> consolidated-reports/README.md
           echo "1. Download the artifact 'all-test-reports-archive'" >> consolidated-reports/README.md
           echo "2. Extract the ZIP file" >> consolidated-reports/README.md
           echo "3. Open the HTML files in your browser" >> consolidated-reports/README.md
-          echo "4. For Allure reports, use: allure serve <allure-results-folder>" >> consolidated-reports/README.md
+          echo "4. For Allure reports:" >> consolidated-reports/README.md
+          echo "   - View HTML Report: Open mobile-tests/allure-report/index.html in browser" >> consolidated-reports/README.md
+          echo "   - Or use command line: allure serve mobile-tests/allure-results/" >> consolidated-reports/README.md
 
       - name: Upload Consolidated Test Reports Archive
         uses: actions/upload-artifact@v4
