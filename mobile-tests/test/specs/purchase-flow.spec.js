@@ -15,34 +15,34 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
         
         // 2. Selecionar o produto Sauce Labs Backpack
         await ProductsPage.selectSauceLabsBackpack();
-        console.log('✓ Produto selecionado');
+        console.log('Produto selecionado');
         
         // 3. Rolar a tela para baixo
         await ProductsPage.scrollDown();
-        console.log('✓ Tela rolada');
+        console.log('Tela rolada');
         
         // 4. Adicionar produto ao carrinho
         await ProductsPage.addToCart();
-        console.log('✓ Produto adicionado ao carrinho');
+        console.log('Produto adicionado ao carrinho');
         
         // 5. Abrir carrinho
         await ProductsPage.openCart();
-        console.log('✓ Carrinho aberto');
+        console.log('Carrinho aberto');
         
         // 6. Prosseguir para checkout
         await ProductsPage.proceedToCheckout();
-        console.log('✓ Prosseguiu para checkout');
+        console.log('Prosseguiu para checkout');
         
         // 7. Fazer login
         await LoginPage.login('bod@example.com', '10203040');
-        console.log('✓ Login realizado');
+        console.log('Login realizado');
         
         // 8. Lidar com popup do Android (se aparecer)
         try {
             const noButton = await $('//android.widget.Button[@text="Agora não"]');
             if (await noButton.isDisplayed()) {
                 await noButton.click();
-                console.log('✓ Popup do Android fechado');
+                console.log('Popup do Android fechado');
                 await driver.pause(1000);
             }
         } catch (error) {
@@ -57,7 +57,7 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
         
         // Verificar se é tela de endereço (que é o que está acontecendo nos logs)
         if (pageSource.includes('fullNameET') || pageSource.includes('Enter a shipping address')) {
-            console.log('✓ Detectada tela de endereço - continuando fluxo');
+            console.log('Detectada tela de endereço - continuando fluxo');
             
             // Preencher endereço
             await CheckoutPage.fillAddress({
@@ -69,11 +69,11 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
                 zip: '01234-567',
                 country: 'Brasil'
             });
-            console.log('✓ Endereço preenchido');
+            console.log('Endereço preenchido');
             
             // Prosseguir para pagamento
             await CheckoutPage.proceedToPayment();
-            console.log('✓ Prosseguiu para pagamento');
+            console.log('Prosseguiu para pagamento');
             
             // Aguardar tela de pagamento carregar
             await driver.pause(2000);
@@ -86,7 +86,7 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
                 expirationDate: '12/25',
                 securityCode: '123'
             });
-            console.log('✓ Dados de pagamento preenchidos');
+            console.log('Dados de pagamento preenchidos');
             
             // Aguardar um pouco antes de finalizar
             await driver.pause(1000);
@@ -94,7 +94,7 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
             
             // Finalizar pedido
             await PaymentPage.placeOrder();
-            console.log('✓ Pedido finalizado');
+            console.log('Pedido finalizado');
             
             // Aguardar confirmação
             await driver.pause(2000);
@@ -118,10 +118,10 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
                     zip: '01234-567',
                     country: 'Brasil'
                 });
-                console.log('✓ Endereço preenchido (tentativa)');
+                console.log('Endereço preenchido (tentativa)');
                 
                 await CheckoutPage.proceedToPayment();
-                console.log('✓ Prosseguiu para pagamento (tentativa)');
+                console.log('Prosseguiu para pagamento (tentativa)');
                 
                 await driver.pause(3000);
                 
@@ -131,13 +131,13 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
                     expirationDate: '12/25',
                     securityCode: '123'
                 });
-                console.log('✓ Dados de pagamento preenchidos (tentativa)');
+                console.log('Dados de pagamento preenchidos (tentativa)');
                 
                 await PaymentPage.placeOrder();
-                console.log('✓ Pedido finalizado (tentativa)');
+                console.log('Pedido finalizado (tentativa)');
                 
             } catch (error) {
-                console.log('❌ Erro ao tentar continuar o fluxo:', error.message);
+                console.log('Erro ao tentar continuar o fluxo:', error.message);
                 // Não falhar o teste, apenas logar o erro
             }
         }

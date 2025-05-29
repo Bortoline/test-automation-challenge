@@ -6,7 +6,6 @@ setDefaultTimeout(60 * 1000);
 
 let browser;
 let context;
-let page;
 
 // Hooks para inicializar e finalizar o browser/página
 BeforeAll(async () => {
@@ -22,14 +21,12 @@ Before(async function () {
 });
 
 After(async function () {
-  // Fecha a página e o contexto após cada cenário
   if (this.page) {
     await this.page.close();
   }
   if (context) {
     await context.close();
   }
-  // Fecha o browser apenas se ele foi inicializado
   if (browser) {
      await browser.close();
   }

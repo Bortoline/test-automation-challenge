@@ -1,6 +1,4 @@
-// mobile-tests/pages/ProductsPage.js
 class ProductsPage {
-    // Seletores baseados no mapeamento fornecido
     get productsHeader() {
         return $("//android.widget.TextView[@text=\"Products\"]"); 
     }
@@ -13,7 +11,6 @@ class ProductsPage {
         return $('//*[@resource-id="com.saucelabs.mydemoapp.android:id/cartBt"]');
     }
 
-    // Seletores alternativos para o botão Add to Cart
     get addToCartButtonAlt1() {
         return $('//android.widget.Button[contains(@text, "Add")]');
     }
@@ -44,7 +41,6 @@ class ProductsPage {
         console.log('Selecionando produto Sauce Labs Backpack...');
         await this.sauceLabsBackpackProduct.waitForDisplayed({ timeout: 15000 });
         await this.sauceLabsBackpackProduct.click();
-        // Aguardar a tela de detalhes carregar
         await driver.pause(3000);
     }
 
@@ -58,7 +54,6 @@ class ProductsPage {
             });
         } catch (error) {
             console.log(`Tentando scroll alternativo... ${error}`);
-            // Fallback para scroll manual
             await driver.touchAction([
                 { action: 'press', x: 200, y: 800 },
                 { action: 'moveTo', x: 200, y: 400 },
@@ -71,7 +66,6 @@ class ProductsPage {
     async addToCart() {
         console.log('Adicionando produto ao carrinho...');
         
-        // Tentar múltiplos seletores para o botão Add to Cart
         const selectors = [
             this.addToCartButton,
             this.addToCartButtonAlt1,
@@ -86,7 +80,7 @@ class ProductsPage {
                 await selectors[i].waitForDisplayed({ timeout: 8000 });
                 await selectors[i].click();
                 buttonFound = true;
-                console.log(`✓ Botão encontrado com seletor ${i + 1}`);
+                console.log(`Botão encontrado com seletor ${i + 1}`);
                 break;
             } catch (error) {
                 console.log(`Seletor ${i + 1} falhou:`, error.message);
@@ -95,13 +89,10 @@ class ProductsPage {
         }
         
         if (!buttonFound) {
-            // Debug: capturar informações da tela
-            console.log('=== DEBUG: Elementos não encontrados ===');
             try {
                 const pageSource = await driver.getPageSource();
                 console.log('Page source (primeiros 1000 chars):', pageSource.substring(0, 1000));
                 
-                // Procurar por todos os botões
                 const allButtons = await driver.$$('//android.widget.Button');
                 console.log(`Encontrados ${allButtons.length} botões na tela:`);
                 
