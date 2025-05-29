@@ -202,6 +202,7 @@ jobs:
   mobile-tests:
     needs: install-deps
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       matrix:
         api-level: [29]
@@ -255,7 +256,7 @@ jobs:
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save
           disable-animations: false
           script: echo "Generated AVD snapshot for caching."
 
@@ -273,8 +274,14 @@ jobs:
 
       - name: Start Appium Server
         run: |
-          appium server --port 4723 --log-level info &
-          sleep 5
+          echo "Starting Appium server..."
+          appium server --port 4723 --log-level info > appium.log 2>&1 &
+          APPIUM_PID=$!
+          echo "Appium PID: $APPIUM_PID"
+          echo $APPIUM_PID > appium.pid
+          sleep 10
+          curl -f http://localhost:4723/status || (echo "Appium server not ready" && cat appium.log && exit 1)
+          echo "Appium server is ready!"
         
       - name: Run Mobile Tests with Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -283,38 +290,111 @@ jobs:
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -wipe-data
           disable-animations: true
           script: |
             echo "Waiting for emulator to be ready..."
             adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
             echo "Emulator is ready!"
             echo "Waiting additional time for emulator stabilization..."
-            sleep 20
+            sleep 15
+            
+            # Verificar se Appium ainda está rodando
             curl -f http://localhost:4723/status || (echo "Appium server not ready" && exit 1)
+            
+            # Configurar emulador
             adb shell settings put system accelerometer_rotation 0
             adb shell input keyevent 82
             adb shell input swipe 300 1000 300 500
-            cd mobile-tests && timeout 300 npm test || echo "Test completed or timed out"
+            
+            # Executar testes com timeout mais agressivo
+            echo "Starting mobile tests..."
+            cd mobile-tests && timeout 240 npm test || echo "Test completed or timed out"
+            
+            echo "Tests finished, starting cleanup..."
+
+      - name: Stop Appium Server
+        if: always()
+        run: |
+          echo "Stopping Appium server..."
+          if [ -f appium.pid ]; then
+            APPIUM_PID=$(cat appium.pid)
+            echo "Killing Appium PID: $APPIUM_PID"
+            kill -TERM $APPIUM_PID 2>/dev/null || echo "Appium process already terminated"
+            sleep 3
+            kill -KILL $APPIUM_PID 2>/dev/null || echo "Appium process already killed"
+            rm -f appium.pid
+          fi
+
+      - name: Stop Android Emulator
+        if: always()
+        run: |
+          echo "Stopping Android emulator..."
+          # Try graceful shutdown first
+          adb emu kill 2>/dev/null || echo "Emulator kill command failed"
+          sleep 5
+          
+          # Force stop if still running
+          adb kill-server 2>/dev/null || echo "ADB server already stopped"
+          sleep 2
 
       - name: Force cleanup processes
         if: always()
+        timeout-minutes: 5
         run: |
-          echo "Cleaning up processes..."
-          pkill -f appium || echo "No Appium processes to kill"
-          pkill -f emulator || echo "No emulator processes to kill"
-          pkill -f qemu || echo "No QEMU processes to kill"
+          echo "Force cleaning up all processes..."
+          
+          # Kill Appium processes
+          pkill -f "appium" || echo "No Appium processes to kill"
+          pkill -f "node.*appium" || echo "No Node Appium processes to kill"
+          
+          # Kill emulator processes
+          pkill -f "emulator" || echo "No emulator processes to kill"
+          pkill -f "qemu" || echo "No QEMU processes to kill"
+          
+          # Kill ADB server
+          adb kill-server || echo "ADB server already stopped"
+          
+          # Kill any remaining WebDriverIO processes
+          pkill -f "wdio" || echo "No WDIO processes to kill"
+          pkill -f "chromedriver" || echo "No chromedriver processes to kill"
+          
+          # Wait a bit for processes to terminate
           sleep 5
+          
+          # Force kill any remaining processes
+          pkill -9 -f "appium" || echo "No Appium processes to force kill"
+          pkill -9 -f "emulator" || echo "No emulator processes to force kill"
+          pkill -9 -f "qemu" || echo "No QEMU processes to force kill"
+          
+          # Final cleanup - kill any remaining Android-related processes
+          pkill -9 -f "android" || echo "No Android processes to force kill"
+          pkill -9 -f "adb" || echo "No ADB processes to force kill"
+          
+          echo "Cleanup completed"
 
       - name: Capture Debug Info on Failure
         if: failure()
         run: |
           echo "Capturing debug information..."
           mkdir -p reports/mobile-tests/debug
-          adb shell screencap -p /sdcard/screenshot.png || echo "Screenshot command failed"
-          adb pull /sdcard/screenshot.png reports/mobile-tests/debug/emulator-screenshot.png || echo "Could not pull screenshot"
-          adb shell uiautomator dump /sdcard/ui-dump.xml || echo "UI dump command failed"
-          adb pull /sdcard/ui-dump.xml reports/mobile-tests/debug/ui-hierarchy.xml || echo "Could not pull UI dump"
+          
+          # Try to capture screenshot if emulator is still running
+          adb shell screencap -p /sdcard/screenshot.png 2>/dev/null || echo "Screenshot command failed"
+          adb pull /sdcard/screenshot.png reports/mobile-tests/debug/emulator-screenshot.png 2>/dev/null || echo "Could not pull screenshot"
+          
+          # Try to capture UI hierarchy
+          adb shell uiautomator dump /sdcard/ui-dump.xml 2>/dev/null || echo "UI dump command failed"
+          adb pull /sdcard/ui-dump.xml reports/mobile-tests/debug/ui-hierarchy.xml 2>/dev/null || echo "Could not pull UI dump"
+          
+          # Capture Appium logs if available
+          if [ -f appium.log ]; then
+            cp appium.log reports/mobile-tests/debug/appium.log
+          fi
+          
+          # Capture process information
+          ps aux | grep -E "(appium|emulator|qemu)" > reports/mobile-tests/debug/processes.txt || echo "Could not capture process info"
+          
           echo "Debug information saved to reports/mobile-tests/debug/"
 
       - name: Upload Mobile Test Report
