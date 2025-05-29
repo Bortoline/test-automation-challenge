@@ -137,7 +137,7 @@ describe('Fluxo Completo de Compra - Corrigido', () => {
                 console.log('Pedido finalizado (tentativa)');
                 
             } catch (error) {
-                console.log('❌ Erro ao tentar continuar o fluxo:', error.message);
+                console.log('Erro ao tentar continuar o fluxo:', error.message);
                 // Não falhar o teste, apenas logar o erro
             }
         }
