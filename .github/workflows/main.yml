@@ -114,7 +114,7 @@ jobs:
         run: mkdir -p reports/k6
 
       - name: Run K6 Load Test (Short Version with HTML Reports)
-        run: cd k6-tests && npm run k6:test-short
+        run: cd k6-tests && npm run k6:test
 
       - name: Upload K6 Report
         uses: actions/upload-artifact@v4
